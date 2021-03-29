@@ -18,7 +18,7 @@ namespace uploadImages
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
-        private string url = "http://172.31.224.1:44377/api/Files/Upload"; 
+        private string url = "http://10.42.128.73/demo_uploads/api/Files/Upload"; 
         protected override async void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -26,17 +26,19 @@ namespace uploadImages
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
 
-            var file = await MediaPicker.PickPhotoAsync();
-            if (file == null)
+            while (true)
             {
-                return;
+                var file = await MediaPicker.PickPhotoAsync();
+                if (file == null)
+                {
+                    return;
+                }
+                var content = new MultipartFormDataContent();
+                content.Add(new StreamContent(await file.OpenReadAsync()), "file", file.FileName);
+                var HttpClient = new HttpClient();
+                var response = await HttpClient.PostAsync(url, content);
+                System.Console.WriteLine(response.StatusCode.ToString());
             }
-            var content = new MultipartFormDataContent();
-            content.Add(new StreamContent(await file.OpenReadAsync()), "file", file.FileName);
-            var HttpClient = new HttpClient();
-            var response = await HttpClient.PostAsync(url, content);
-            System.Console.WriteLine(response.StatusCode.ToString());
-
 
         }
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
