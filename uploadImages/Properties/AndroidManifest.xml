@@ -8,4 +8,6 @@
 	<!-- Permission for accessing storage -->
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<!-- Permission for accessing storage -->
+	<uses-permission android:name="android.permission.CAMERA" />
+	<!-- Permission for accessing camera -->
 </manifest>

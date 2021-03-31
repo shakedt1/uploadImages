@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">uploadImages</string>
     <string name="action_settings">Settings</string>
+    <string name="camera_button">upload from camera</string>
+    <string name="gallery_button">upload from gallery</string>
+    <string name="status">status</string>
 </resources>
