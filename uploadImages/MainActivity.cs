@@ -11,17 +11,28 @@ using Android.Widget;
 using System;
 using System.Threading.Tasks;
 using System.IO;
+using Newtonsoft.Json;
+using System.Text;
+
 
 namespace uploadImages
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = true)]
+
     public class MainActivity : AppCompatActivity
     {
         // server IP, may change
-        private string url = "http://10.42.128.73/demo_uploads/api/Files/Upload";
+        private string url = "https://774ucrxojh.execute-api.us-east-1.amazonaws.com/dev";
 
         // place to store taken images
         private string galleryPath = "/storage/emulated/0/Pictures/";
+
+        class Data
+        {
+            public string image { get; set; }
+            public string client { get; set; }
+            public string imageName { get; set; }
+        }
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -41,7 +52,7 @@ namespace uploadImages
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
 
-        // choose picture from galler, and upload it 
+        // choose picture from gallery, and upload it
         private async void uploadFromGallery(object sender, EventArgs args)
         {
             try
@@ -75,8 +86,7 @@ namespace uploadImages
                     return;
                 }
 
-                
-                await loadPhotoAsync(photo); // save the photo to device 
+                await loadPhotoAsync(photo); // save the photo to device
                 await uploadPhotoAsync(photo); // upload the photo
             }
             catch (Exception ex)
@@ -90,7 +100,7 @@ namespace uploadImages
         // save the photo into local storage
         private async Task loadPhotoAsync(FileResult photo)
         {
-            // cretae file path
+            // create file path
             var newFile = Path.Combine(galleryPath, photo.FileName);
             // read the photo
             using (var stream = await photo.OpenReadAsync())
@@ -99,27 +109,35 @@ namespace uploadImages
 
         }
 
-        // upload photo to the srver
+        // upload photo to the server
         private async Task uploadPhotoAsync(FileResult photo)
         {
             // container for MIME data type
-            var content = new MultipartFormDataContent();
-            content.Add(new StreamContent(await photo.OpenReadAsync()), "file", photo.FileName);
+            Byte[] bytes = File.ReadAllBytes(photo.FullPath);
+            Data data = new Data { image = Convert.ToBase64String(bytes), client = "meir", imageName = photo.FileName };
 
-            // post our http request
+            string serializedData = JsonConvert.SerializeObject(data);
+            var httpContent = new StringContent(serializedData, Encoding.UTF8, "application/json");
+
+            // post our Http request
             try
             {
                 var HttpClient = new HttpClient();
-                var response = await HttpClient.PostAsync(url, content);
-                SnackbarShow(response.StatusCode.ToString() + " " + response.Content.ReadAsStringAsync().Result);
+                var response = await HttpClient.PostAsync(url, httpContent);
+
+                if (response.Content != null)
+                {
+                    SnackbarShow(response.StatusCode.ToString() + " " + response.Content.ReadAsStringAsync().Result);
+                }
             }
+
             catch (Exception ex)
             {
                 SnackbarShow(ex.Message);
             }
         }
 
-        // raise buttom bar that show the status of the upload
+        // raise bottom bar that show the status of the upload
         private void SnackbarShow(string message)
         {
             Activity activity = CrossCurrentActivity.Current.Activity;
