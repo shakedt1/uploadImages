@@ -1,23 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-    android:orientation="vertical" >
-    
-    <Button
+    android:orientation="vertical">
+    <android.support.v4.widget.Space
+        android:layout_width="match_parent"
+        android:layout_height="21.0dp"
+        android:id="@+id/space2" />
+    <TextView
+        android:text="Enter your name:"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/camera_button"
-        android:id="@+id/uploadFromCamera"/>
+        android:id="@+id/textView1" />
+    <android.support.design.widget.TextInputEditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/usernameInput"
+        android:layout_marginBottom="62.5dp"
+        android:enabled="true"
+        android:editable="true" />
+    <android.support.v4.widget.Space
+        android:layout_width="match_parent"
+        android:layout_height="54.0dp"
+        android:id="@+id/space1" />
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/gallery_button"
-        android:id="@+id/uploadFromGallery"/>
+        android:id="@+id/uploadFromGallery"
+        android:clickable="true"
+        android:enabled="false" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/camera_button"
+        android:id="@+id/uploadFromCamera"
+        android:clickable="true"
+        android:enabled="false" />
 
 </LinearLayout>

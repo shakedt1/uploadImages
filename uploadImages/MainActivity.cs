@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Newtonsoft.Json;
 using System.Text;
-
+using System.Text.RegularExpressions;
 
 namespace uploadImages
 {
@@ -33,18 +33,29 @@ namespace uploadImages
             public string client { get; set; }
             public string imageName { get; set; }
         }
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             Platform.Init(this, savedInstanceState);
+
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.activity_main);
             CrossCurrentActivity.Current.Init(this, savedInstanceState);
 
             FindViewById<Button>(Resource.Id.uploadFromGallery).Click += uploadFromGallery;
             FindViewById<Button>(Resource.Id.uploadFromCamera).Click += uploadFromCamera;
-
+            FindViewById<TextInputEditText>(Resource.Id.usernameInput).KeyPress += ValidateName;
         }
+
+        private void ValidateName(object sender, EventArgs e)
+        {
+            TextInputEditText senderObject = sender as TextInputEditText;
+            FindViewById<Button>(Resource.Id.uploadFromCamera).Enabled
+                = FindViewById<Button>(Resource.Id.uploadFromGallery).Enabled
+                = Regex.IsMatch(senderObject.Text.Trim(), @"^[A-Za-z\d\s]+$");
+        }
+
         public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
         {
             Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -113,8 +124,14 @@ namespace uploadImages
         private async Task uploadPhotoAsync(FileResult photo)
         {
             // container for MIME data type
-            Byte[] bytes = File.ReadAllBytes(photo.FullPath);
-            Data data = new Data { image = Convert.ToBase64String(bytes), client = "meir", imageName = photo.FileName };
+            byte[] bytes = File.ReadAllBytes(photo.FullPath);
+
+            Data data = new Data
+            {
+                image = Convert.ToBase64String(bytes),
+                client = FindViewById<TextInputEditText>(Resource.Id.usernameInput).Text,
+                imageName = photo.FileName
+            };
 
             string serializedData = JsonConvert.SerializeObject(data);
             var httpContent = new StringContent(serializedData, Encoding.UTF8, "application/json");
@@ -135,6 +152,8 @@ namespace uploadImages
             {
                 SnackbarShow(ex.Message);
             }
+            FindViewById<TextInputEditText>(Resource.Id.usernameInput).Text = String.Empty;
+
         }
 
         // raise bottom bar that show the status of the upload
